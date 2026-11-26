@@ -1,0 +1,1 @@
+export function Status({loading,error}:{loading:boolean;error?:string}){return loading?<div className="status" role="status">Loading…</div>:error?<div className="error" role="alert">{error}</div>:null}

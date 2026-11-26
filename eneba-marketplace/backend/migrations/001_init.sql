@@ -1,0 +1,14 @@
+BEGIN;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE TABLE IF NOT EXISTS users(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,email text UNIQUE NOT NULL,password_hash text NOT NULL,created_at timestamptz DEFAULT now());
+CREATE TABLE IF NOT EXISTS sessions(token_hash text PRIMARY KEY,user_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,expires_at timestamptz NOT NULL);
+CREATE TABLE IF NOT EXISTS products(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,slug text UNIQUE NOT NULL,name text NOT NULL,platform text NOT NULL,region text NOT NULL,description text NOT NULL,image text NOT NULL,original_cents integer NOT NULL CHECK(original_cents>0),popularity integer NOT NULL DEFAULT 0);
+CREATE INDEX IF NOT EXISTS products_name_trgm ON products USING gin (lower(name) gin_trgm_ops);
+CREATE TABLE IF NOT EXISTS sellers(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,name text UNIQUE NOT NULL,rating numeric(3,2) NOT NULL CHECK(rating BETWEEN 0 AND 5));
+CREATE TABLE IF NOT EXISTS offers(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,product_id bigint NOT NULL REFERENCES products(id),seller_id bigint NOT NULL REFERENCES sellers(id),price_cents integer NOT NULL CHECK(price_cents>0),UNIQUE(product_id,seller_id));
+CREATE TABLE IF NOT EXISTS digital_keys(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,offer_id bigint NOT NULL REFERENCES offers(id),code text UNIQUE NOT NULL,sold_at timestamptz);
+CREATE INDEX IF NOT EXISTS available_keys ON digital_keys(offer_id) WHERE sold_at IS NULL;
+CREATE TABLE IF NOT EXISTS orders(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,user_id bigint NOT NULL REFERENCES users(id),total_cents integer NOT NULL CHECK(total_cents>=0),created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS order_items(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,order_id bigint NOT NULL REFERENCES orders(id),offer_id bigint NOT NULL REFERENCES offers(id),key_id bigint UNIQUE NOT NULL REFERENCES digital_keys(id),price_cents integer NOT NULL CHECK(price_cents>0));
+CREATE TABLE IF NOT EXISTS banners(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,title text NOT NULL,subtitle text NOT NULL,image text NOT NULL,cta text NOT NULL,position integer UNIQUE NOT NULL);
+COMMIT;

@@ -1,0 +1,9 @@
+# Architecture
+
+React feature folders own page components and feature types. Shared layout and API client are outside features. React Router handles navigation; auth and cart contexts hold small shared state. URL parameters represent store filters so searches can be bookmarked.
+
+Go `cmd/api` loads environment configuration, opens the SQL pool and starts the HTTP server. `internal/server` registers modules with Go's standard HTTP router. `internal/modules/products` implements catalog repository and handlers; `search` provides literal search escaping; `offers` combines seller data and key stock; `homepage` exposes independent banner, best-seller and deal services; `auth` owns credentials and sessions; `cart` validates item quantities and quotes current prices; `checkout` owns transactional purchase; `orders` reads the signed-in user's keys. SQL queries are parameterized; sort expressions use a fixed allowlist.
+
+Data relationships: products and sellers have many offers; offers have many digital keys; users have sessions and orders; order items reference an offer and a unique allocated key. Key allocation is atomic with order creation. Offers are locked in deterministic ID order to reduce deadlocks. The homepage uses separate endpoints in one backend and one database, not separate deployments. This is an explicit interpretation of the intentionally open spec.
+
+Demo limitations: server-side rate limiting, email verification, password recovery, payment idempotency, pagination beyond 200 products, real seller management and production monitoring are outside this implementation. Opaque tokens are used instead of JWT to allow simple revocation. SessionStorage is accessible to frontend JavaScript; use a stronger cookie/CSP model for production. Client-side cart is shared on the same browser. No official asset or full browser match verified yet.

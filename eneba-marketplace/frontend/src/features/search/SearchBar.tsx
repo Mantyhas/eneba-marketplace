@@ -1,0 +1,2 @@
+import {useState,type FormEvent} from 'react';import {useNavigate} from 'react-router-dom';import {Search} from 'lucide-react';
+export function SearchBar(){const [q,setQ]=useState('');const navigate=useNavigate();function submit(e:FormEvent){e.preventDefault();navigate(`/store?${new URLSearchParams({q:q.trim()})}`)}return <form className="search" onSubmit={submit}><button aria-label="Search"><Search size={23}/></button><input aria-label="Search products" placeholder="Search for games, top-ups and more" value={q} onChange={e=>setQ(e.target.value)}/></form>}
