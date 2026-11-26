@@ -1,6 +1,6 @@
 # Eneba Marketplace
 
-An unofficial digital game marketplace built for the **Eneba Internship Assignment 2027**. The application recreates the Eneba shopping experience, from browsing and comparing seller offers to checkout and digital key delivery.
+An unofficial digital game marketplace built for the **Eneba Internship Assignment 2026**. The application recreates the Eneba shopping experience, from browsing and comparing seller offers to checkout and digital key delivery.
 
 **Live demo:** [eneba-marketplace-psi.vercel.app](https://eneba-marketplace-psi.vercel.app/)
 
